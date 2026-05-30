@@ -62,7 +62,7 @@ function AddPage() {
     } = await supabase.auth.getUser();
     if (!user) return;
     const { error } = await supabase
-      .from("food_log")
+      .from("food_logs")
       .insert(rows.map((r) => ({ ...r, user_id: user.id })));
     if (error) {
       toast.error(error.message);

@@ -24,7 +24,7 @@ export function ProgressRing({
   const pct = goal > 0 ? Math.min(value / goal, 1) : 0;
   const r = (size - stroke) / 2;
   const c = 2 * Math.PI * r;
-  const dash = c * (1 - pct);
+  const dash = c * pct;
 
   return (
     <div

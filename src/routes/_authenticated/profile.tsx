@@ -25,6 +25,9 @@ function ProfilePage() {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [email, setEmail] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordSaving, setPasswordSaving] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -94,6 +97,20 @@ function ProfilePage() {
     toast.success(t("avatar_updated"));
   }
 
+  async function changePassword() {
+    if (!newPassword || newPassword.length < 6) { toast.error(t("password_too_short", { n: 6 })); return; }
+    if (newPassword !== confirmPassword) { toast.error(t("passwords_must_match")); return; }
+    setPasswordSaving(true);
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    setPasswordSaving(false);
+    if (error) {
+      toast.error(error.message ?? t("password_update_failed"));
+    } else {
+      setNewPassword(""); setConfirmPassword("");
+      toast.success(t("password_updated"));
+    }
+  }
+
   return (
     <div>
       <header className="pt-8 pb-6 px-6 flex justify-between items-center">
@@ -159,6 +176,16 @@ function ProfilePage() {
               <option value="cut">{t("goal_cut")}</option><option value="maintain">{t("goal_maintain")}</option><option value="bulk">{t("goal_bulk")}</option>
             </select>
           </Row>
+        </Group>
+
+        <Group title={t("change_password")}>
+          <Row label={t("new_password")}><input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="bg-transparent text-right focus:outline-none" /></Row>
+          <Row label={t("confirm_password")}><input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="bg-transparent text-right focus:outline-none" /></Row>
+          <div className="p-4">
+            <button onClick={changePassword} disabled={passwordSaving} className="w-full rounded-2xl bg-surface text-brand py-3.5 text-sm font-semibold disabled:opacity-50">
+              {passwordSaving ? t("saving") : t("change_password")}
+            </button>
+          </div>
         </Group>
 
         <button onClick={save} disabled={saving} className="w-full rounded-2xl bg-foreground text-brand py-3.5 font-semibold disabled:opacity-50">
